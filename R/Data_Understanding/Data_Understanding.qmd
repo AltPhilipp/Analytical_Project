@@ -1,0 +1,75 @@
+---
+title: "Data Understanding & Exploration - Self-Checkout Fraud Dataset"
+author: "Philipp Altenbach, Ronny Grieder, Omar Rahiel, Emre Yelögrü"
+format: html
+editor: visual
+execute:
+  echo: true  # Show code in output by default
+---
+
+This document presents an initial exploratory analysis of the dataset related to self-checkout fraud detection. The focus is on understanding the structure of the `fraud.csv` dataset before proceeding with further analysis.
+
+# Load and Inspection of the Data
+
+```{r setup, include=FALSE}
+# Load required libraries
+library(data.table)  # Efficient data reading
+library(dplyr)       # Data manipulation
+library(ggplot2)     # Visualization
+library(here)        # Using relative path names
+```
+
+```{r}
+# Load dataset
+data_path <- file.path(dirname(dirname(here())), "Data", "fraud.csv")
+df <- fread(data_path)
+```
+
+```{r include=FALSE}
+# Displaying the dimensions of the dataset
+num_rows <- dim(df)[1]
+num_cols <- dim(df)[2]
+
+```
+
+## Dimensions of the dataset
+
+```{r}
+# Dimensions of the dataset
+cat("The dataset contains", num_rows, "rows and", num_cols, "columns.\n")
+
+```
+
+## Underlying data types
+
+```{r}
+# Display the data type of each attribute
+column_info <- sapply(df, class)
+
+# Print column names with their data types
+for (col_name in names(column_info)) {
+  print(paste("Column:", col_name, "- Data type:", column_info[col_name]))
+}
+
+```
+
+## Summary of the whole dataset
+
+```{r}
+summary(df)
+```
+
+## Checking for missing values and duplicates
+
+```{r include=FALSE}
+# Count missing values per column
+missing_values <- colSums(is.na(df))
+# Count duplicate rows
+duplicate_count <- nrow(df) - nrow(unique(df))
+
+```
+
+```{r}
+cat("The dataset contains", sum(missing_values), "missing values and ", duplicate_count, " duplicates.\n")
+
+```

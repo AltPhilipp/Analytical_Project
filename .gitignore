@@ -2,3 +2,5 @@
 .Rproj.user
 .RData
 .Rhistory
+*.Rproj
+R/Data_Understanding/Data_Understanding_files/
