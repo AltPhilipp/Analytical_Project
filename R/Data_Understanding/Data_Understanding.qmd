@@ -1,25 +1,38 @@
 ---
-title: "Data Understanding & Exploration - Self-Checkout Fraud Dataset"
+title: "Analytics Project 2025: Self-Checkout Fraud"
+subtitle: "Data Understanding and Exploration"
 author: "Philipp Altenbach, Ronny Grieder, Omar Rahiel, Emre Yelögrü"
-format: html
-editor: visual
+date : today
+format:
+  html:
+    theme: zephyr
+    code-fold: show
+    page-layout: full
+# format: pdf #Needs tinytex or similar
+editor: visual #Visual editor by default
 execute:
-  echo: true  # Show code in output by default
+  echo: true  # Show code in output by default. If false no code only output.
 ---
 
-This document presents an initial exploratory analysis of the dataset related to self-checkout fraud detection. The focus is on understanding the structure of the `fraud.csv` dataset before proceeding with further analysis.
+This document presents an initial exploratory analysis of the data set related to self-checkout fraud detection. The focus is on understanding the structure of the `fraud.csv` data set before proceeding with further analysis.
 
-# Load and Inspection of the Data
+# Loading and Inspection of the Data
 
 ```{r setup, include=FALSE}
+#This chunk won't be rendered in final the document!
 # Load required libraries
 library(data.table)  # Efficient data reading
 library(dplyr)       # Data manipulation
 library(ggplot2)     # Visualization
 library(here)        # Using relative path names
+library(skimr)
+library(Hmisc)
+library(corrplot)
+library(plotly)
 ```
 
 ```{r}
+##| echo: true #This can be added to selectively show specific code chunks.
 # Load dataset
 data_path <- file.path(dirname(dirname(here())), "Data", "fraud.csv")
 df <- fread(data_path)
@@ -32,7 +45,7 @@ num_cols <- dim(df)[2]
 
 ```
 
-## Dimensions of the dataset
+## Dimensions of the Dataset
 
 ```{r}
 # Dimensions of the dataset
@@ -40,23 +53,16 @@ cat("The dataset contains", num_rows, "rows and", num_cols, "columns.\n")
 
 ```
 
-## Underlying data types
+## Summary of the whole Dataset
 
-```{r}
-# Display the data type of each attribute
-column_info <- sapply(df, class)
-
-# Print column names with their data types
-for (col_name in names(column_info)) {
-  print(paste("Column:", col_name, "- Data type:", column_info[col_name]))
-}
-
+```{r, out.width="100%"}
+skim(df)
 ```
 
-## Summary of the whole dataset
+## Underlying Data Types
 
 ```{r}
-summary(df)
+cat(paste(names(df), "➡️", sapply(df, class)), sep = "\n")
 ```
 
 ## Checking for missing values and duplicates
@@ -66,10 +72,35 @@ summary(df)
 missing_values <- colSums(is.na(df))
 # Count duplicate rows
 duplicate_count <- nrow(df) - nrow(unique(df))
-
 ```
 
 ```{r}
 cat("The dataset contains", sum(missing_values), "missing values and ", duplicate_count, " duplicates.\n")
+```
+
+## Correlation Matrix
+
+```{r}
+#Creation of correlation matrix
+cor_matrix <- cor(df, use = "complete.obs") #Handle missing values if present.
+#print(cor_matrix)
+
+#Visualization usng corrplot
+corrplot(cor_matrix, method = "color", col = COL1("YlOrRd"),
+         tl.col = "grey30", tl.srt = 45, tl.cex = 0.675 ,addCoef.col = "white", 
+         number.cex = 0.8, addgrid.col = "white")
+```
+
+## Various Plots for Data Exploration
+
+```{r}
+
+t_hist <- ggplot(df, aes(x = factor(trustLevel))) +  # Categorical variable
+            geom_bar(fill = "steelblue", color = "black", alpha = 0.7) +
+            labs(title = "Distribution of Variable \"trustLevel\"",
+              x = "Trust Level",
+              y = "Count")
+
+ggplotly(t_hist)
 
 ```
