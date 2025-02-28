@@ -8,7 +8,7 @@ format:
     theme: zephyr
     code-fold: show
     page-layout: full
-# format: pdf #Needs tinytex or similar
+#format: pdf #Needs tinytex or similar
 editor: visual #Visual editor by default
 execute:
   echo: true  # Show code in output by default. If false no code only output.
@@ -78,7 +78,7 @@ duplicate_count <- nrow(df) - nrow(unique(df))
 cat("The dataset contains", sum(missing_values), "missing values and ", duplicate_count, " duplicates.\n")
 ```
 
-## Correlation Matrix
+# Correlation Matrix
 
 ```{r}
 #Creation of correlation matrix
@@ -91,9 +91,27 @@ corrplot(cor_matrix, method = "color", col = COL1("YlOrRd"),
          number.cex = 0.8, addgrid.col = "white")
 ```
 
-## Various Plots for Data Exploration
+# Data Exploration of all features
+
+## Variation of the target variable "fraud"
 
 ```{r}
+
+# Create the bar chart with count labels
+t_hist <- ggplot(df, aes(x = factor(fraud))) +  
+  geom_bar(fill = "steelblue", alpha = 0.7) +  
+  geom_text(stat = "count", aes(label =  after_stat(count)), size = 5) +  
+  labs(title = "Distribution of Variable \"Fraud\"",
+       x = "Fraud",
+       y = "Count") +
+  theme_minimal()
+
+ggplotly(t_hist)  # Display static plot
+```
+
+```{r}
+
+#Redundant??? Imo --> Ronny 
 
 t_hist <- ggplot(df, aes(x = factor(trustLevel))) +  # Categorical variable
             geom_bar(fill = "steelblue", color = "black", alpha = 0.7) +
@@ -102,5 +120,67 @@ t_hist <- ggplot(df, aes(x = factor(trustLevel))) +  # Categorical variable
               y = "Count")
 
 ggplotly(t_hist)
+```
 
+## Various explorations of the remaining features with Fraud Breakdown
+
+1.  A breakdown of fraudulent transaction per `trustLevel`
+
+```{r}
+# Create the stacked bar chart
+t_hist <- ggplot(df, aes(x = factor(trustLevel), fill = factor(fraud))) +  
+  geom_bar(position = "stack", alpha = 0.7) +  
+  labs(title = "Trust Level Distribution with Fraud Breakdown",
+       x = "Trust Level",
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) + # Custom colors
+  theme_minimal()
+
+# Interactive version
+ggplotly(t_hist)
+```
+
+2.   A breakdown of `totalScanTimeInSeconds` with Fraud Breakdown
+
+```{r}
+# Boxplot for totalScanTimeInSeconds by fraud status
+boxplot_scan_time <- ggplot(df, aes(x = factor(fraud), y = totalScanTimeInSeconds, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +  
+  labs(title = "Total Scan Time by Fraud Status",
+       x = "Fraud Status",
+       y = "Total Scan Time (Seconds)",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
+
+ggplotly(boxplot_scan_time)  # Interactive version
+
+# Density plot for totalScanTimeInSeconds by fraud status
+density_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density Plot of Total Scan Time by Fraud Status",
+       x = "Total Scan Time (Seconds)",
+       y = "Density",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
+  theme_minimal()
+
+ggplotly(density_scan_time)  # Interactive version
+```
+
+3.   A breakdown of `grandTotal` with Fraud Breakdown
+
+```{r}
+# Boxplot for grandTotal by fraud status
+boxplot_grand_total <- ggplot(df, aes(x = factor(fraud), y = grandTotal, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +  
+  labs(title = "Grand Total by Fraud Status",
+       x = "Fraud Status",
+       y = "Transaction Amount (Grand Total)",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
+
+ggplotly(boxplot_grand_total)  # Interactive version
 ```
