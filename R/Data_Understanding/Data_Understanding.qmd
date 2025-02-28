@@ -3,12 +3,12 @@ title: "Analytics Project 2025: Self-Checkout Fraud"
 subtitle: "Data Understanding and Exploration"
 author: "Philipp Altenbach, Ronny Grieder, Omar Rahiel, Emre Yelögrü"
 date : today
-format:
-  html:
-    theme: zephyr
-    code-fold: show
-    page-layout: full
-# format: pdf #Needs tinytex or similar
+# format:
+#   html:
+#     theme: zephyr
+#     code-fold: show
+#     page-layout: full
+format: pdf #Needs tinytex or similar
 editor: visual #Visual editor by default
 execute:
   echo: true  # Show code in output by default. If false no code only output.
