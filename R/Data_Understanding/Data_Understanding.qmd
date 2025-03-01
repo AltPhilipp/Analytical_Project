@@ -6,7 +6,7 @@ date : today
 format:
   html:
     theme: zephyr
-    code-fold: show
+    code-fold: true
     page-layout: full
 #format: pdf #Needs tinytex or similar
 editor: visual #Visual editor by default
@@ -93,7 +93,7 @@ corrplot(cor_matrix, method = "color", col = COL1("YlOrRd"),
 
 # Data Exploration of all features
 
-## Variation of the target variable "fraud"
+## Variation of the target variable `fraud`
 
 ```{r}
 
@@ -107,19 +107,6 @@ t_hist <- ggplot(df, aes(x = factor(fraud))) +
   theme_minimal()
 
 ggplotly(t_hist)  # Display static plot
-```
-
-```{r}
-
-#Redundant??? Imo --> Ronny 
-
-t_hist <- ggplot(df, aes(x = factor(trustLevel))) +  # Categorical variable
-            geom_bar(fill = "steelblue", color = "black", alpha = 0.7) +
-            labs(title = "Distribution of Variable \"trustLevel\"",
-              x = "Trust Level",
-              y = "Count")
-
-ggplotly(t_hist)
 ```
 
 ## Various explorations of the remaining features with Fraud Breakdown
@@ -141,8 +128,12 @@ t_hist <- ggplot(df, aes(x = factor(trustLevel), fill = factor(fraud))) +
 ggplotly(t_hist)
 ```
 
-2.   A breakdown of `totalScanTimeInSeconds` with Fraud Breakdown
+<br>
 
+2.  Insights into `totalScanTimeInSeconds` with Fraud Breakdown
+
+::::: grid
+::: g-col-6
 ```{r}
 # Boxplot for totalScanTimeInSeconds by fraud status
 boxplot_scan_time <- ggplot(df, aes(x = factor(fraud), y = totalScanTimeInSeconds, fill = factor(fraud))) +
@@ -155,7 +146,11 @@ boxplot_scan_time <- ggplot(df, aes(x = factor(fraud), y = totalScanTimeInSecond
   theme_minimal()
 
 ggplotly(boxplot_scan_time)  # Interactive version
+```
+:::
 
+::: g-col-6
+```{r}
 # Density plot for totalScanTimeInSeconds by fraud status
 density_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
   geom_density(alpha = 0.5) +
@@ -168,9 +163,15 @@ density_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fr
 
 ggplotly(density_scan_time)  # Interactive version
 ```
+:::
+:::::
 
-3.   A breakdown of `grandTotal` with Fraud Breakdown
+<br>
 
+3.  Insides into `grandTotal` with Fraud Breakdown
+
+::::: grid
+::: g-col-6
 ```{r}
 # Boxplot for grandTotal by fraud status
 boxplot_grand_total <- ggplot(df, aes(x = factor(fraud), y = grandTotal, fill = factor(fraud))) +
@@ -184,3 +185,99 @@ boxplot_grand_total <- ggplot(df, aes(x = factor(fraud), y = grandTotal, fill = 
 
 ggplotly(boxplot_grand_total)  # Interactive version
 ```
+:::
+
+::: g-col-6
+```{r}
+# Stacked Histogram of grandTotal by Fraud Status
+hist_grand_total <- ggplot(df, aes(x = grandTotal, fill = factor(fraud))) +
+  geom_histogram(bins = 30, color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of Grand Total with Fraud Breakdown",
+       x = "Transaction Amount (Grand Total)",
+       y = "Count",
+       fill = "Fraud Status") +  
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal()
+
+ggplotly(hist_grand_total)  # Interactive version
+```
+:::
+:::::
+
+<br>
+
+4.  Insides into `lineItemVoids` with Fraud Breakdown
+
+::::: grid
+::: g-col-6
+```{r}
+# Boxplot for lineItemVoids by fraud status
+boxplot_lineItemVoids <- ggplot(df, aes(x = factor(fraud), y = lineItemVoids, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +  
+  labs(title = "lineItemVoids by Fraud Status",
+       x = "Fraud Status",
+       y = "lineItemVoids",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
+
+ggplotly(boxplot_lineItemVoids)  # Interactive version
+```
+:::
+
+::: g-col-6
+```{r}
+# Stacked Histogram of lineItemVoids by Fraud Status
+hist_lineItemVoids <- ggplot(df, aes(x = lineItemVoids, fill = factor(fraud))) +
+  geom_histogram(bins = 10, color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of lineItemVoids with Fraud Breakdown",
+       x = "lineItemVoids",
+       y = "Count",
+       fill = "Fraud Status") +  
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal()
+
+ggplotly(hist_lineItemVoids)  # Interactive version
+
+```
+:::
+:::::
+
+<br>
+
+5.  Insides into `scansWithoutRegistration` with Fraud Breakdown
+
+::::: grid
+::: g-col-6
+```{r}
+# Boxplot for lineItemVoids by fraud status
+boxplot_scansWithoutRegistration <- ggplot(df, aes(x = factor(fraud), y = scansWithoutRegistration, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.color = "red") +  
+  labs(title = "scansWithoutRegistration by Fraud Status",
+       x = "Fraud Status",
+       y = "scansWithoutRegistration",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
+
+ggplotly(boxplot_scansWithoutRegistration)  # Interactive version
+```
+:::
+
+::: g-col-6
+```{r}
+# Stacked Histogram of lineItemVoids by Fraud Status
+hist_scansWithoutRegistration <- ggplot(df, aes(x = scansWithoutRegistration, fill = factor(fraud))) +
+  geom_histogram(bins = 10, color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of scansWithoutRegistration with Fraud Breakdown",
+       x = "scansWithoutRegistration",
+       y = "Count",
+       fill = "Fraud Status") +  
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal()
+
+ggplotly(hist_scansWithoutRegistration)  # Interactive version
+
+```
+:::
+:::::
