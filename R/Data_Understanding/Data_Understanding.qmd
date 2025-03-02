@@ -83,9 +83,8 @@ cat("The dataset contains", sum(missing_values), "missing values and ", duplicat
 ```{r}
 #Creation of correlation matrix
 cor_matrix <- cor(df, use = "complete.obs") #Handle missing values if present.
-#print(cor_matrix)
 
-#Visualization usng corrplot
+#Visualization using corrplot
 corrplot(cor_matrix, method = "color", col = COL1("YlOrRd"),
          tl.col = "grey30", tl.srt = 45, tl.cex = 0.675 ,addCoef.col = "white", 
          number.cex = 0.8, addgrid.col = "white")
