@@ -133,9 +133,9 @@ t_hist <- ggplot(df, aes(x = factor(fraud))) +
 ggplotly(t_hist)  # Display static plot
 ```
 
-## Various explorations of the remaining features with Fraud Breakdown
+# Various explorations of the remaining features with Fraud Breakdown
 
-1.  A breakdown of fraudulent transaction per `trustLevel`
+## Breakdown of fraudulent transaction per `trustLevel`
 
 ```{r}
 #| label: Fraud_Trust_Distribtion
@@ -155,7 +155,7 @@ ggplotly(t_hist)
 
 <br>
 
-2.  Insights into `totalScanTimeInSeconds` with Fraud Breakdown
+## Insights into `totalScanTimeInSeconds` with Fraud Breakdown
 
 ::::: grid
 ::: g-col-6
@@ -193,7 +193,7 @@ ggplotly(density_scan_time)  # Interactive version
 
 <br>
 
-3.  Insides into `grandTotal` with Fraud Breakdown
+## Insights into `grandTotal` with Fraud Breakdown
 
 ::::: grid
 ::: g-col-6
@@ -231,7 +231,7 @@ ggplotly(hist_grand_total)  # Interactive version
 
 <br>
 
-4.  Insides into `lineItemVoids` with Fraud Breakdown
+## Insights into `lineItemVoids` with Fraud Breakdown
 
 ::::: grid
 ::: g-col-6
@@ -270,7 +270,7 @@ ggplotly(hist_lineItemVoids)  # Interactive version
 
 <br>
 
-5.  Insides into `scansWithoutRegistration` with Fraud Breakdown
+## Insights into `scansWithoutRegistration` with Fraud Breakdown
 
 ::::: grid
 ::: g-col-6
@@ -309,7 +309,7 @@ ggplotly(hist_scansWithoutRegistration)  # Interactive version
 
 <br>
 
-6.  Insides into `quantityModifications` with Fraud Breakdown
+## Insights into `quantityModifications` with Fraud Breakdown
 
 ::::: grid
 ::: g-col-6
