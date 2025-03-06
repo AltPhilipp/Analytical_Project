@@ -4,3 +4,5 @@
 .Rhistory
 *.Rproj
 R/Data_Understanding/Data_Understanding_files/
+.html
+
