@@ -62,7 +62,12 @@ skim(df)
 ## Underlying Data Types
 
 ```{r}
-cat(paste(names(df), "➡️", sapply(df, class)), sep = "\n")
+#cat(paste(names(df), sapply(df, class)), sep = "\n")
+df_data_types <- data.frame(Attribute = names(df), Data_Type = sapply(df, class), row.names = NULL)
+print(df_data_types)
+
+
+
 ```
 
 ## Checking for missing values and duplicates
@@ -121,16 +126,20 @@ ggplotly(ll_heat)
 
 ```{r}
 
-# Create the bar chart with count labels
-t_hist <- ggplot(df, aes(x = factor(fraud))) +  
-  geom_bar(fill = "steelblue", alpha = 0.7) +  
-  geom_text(stat = "count", aes(label =  after_stat(count)), size = 5) +  
-  labs(title = "Distribution of Variable \"Fraud\"",
+# Create the bar chart with fraud breakdown
+t_hist <- ggplot(df, aes(x = factor(fraud), fill = factor(fraud))) +  
+  geom_bar(position = "stack", alpha = 0.7) +  
+  geom_text(stat = "count", aes(label = after_stat(count)), position = position_stack(vjust = 0.5), size = 5) +  
+  labs(title = "Distribution of Fraud Variable",
        x = "Fraud",
-       y = "Count") +
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors for fraud categories
   theme_minimal()
 
-ggplotly(t_hist)  # Display static plot
+# Interactive version
+ggplotly(t_hist)
+
 ```
 
 # Various explorations of the remaining features with Fraud Breakdown
@@ -151,6 +160,7 @@ t_hist <- ggplot(df, aes(x = factor(trustLevel), fill = factor(fraud))) +
 
 # Interactive version
 ggplotly(t_hist)
+
 ```
 
 <br>
@@ -176,17 +186,18 @@ ggplotly(boxplot_scan_time)  # Interactive version
 
 ::: g-col-6
 ```{r}
-# Density plot for totalScanTimeInSeconds by fraud status
-density_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Density Plot of Total Scan Time by Fraud Status",
+# Create the histogram with fraud breakdown
+hist_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
+  geom_histogram(position = "stack", color = "black", bins = 30, alpha = 0.7) +  
+  labs(title = "Histogram of Total Scan Time by Fraud Status",
        x = "Total Scan Time (Seconds)",
-       y = "Density",
+       y = "Count",
        fill = "Fraud Status") +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
   theme_minimal()
 
-ggplotly(density_scan_time)  # Interactive version
+# Interactive version
+ggplotly(hist_scan_time)
 ```
 :::
 :::::
@@ -346,90 +357,133 @@ ggplotly(hist_quantityModifications)  # Interactive version
 :::
 :::::
 
-<!-- <br> -->
+<br>
 
-<!-- 7.  Insides into `scannedLineItemsPerSecond` with Fraud Breakdown -->
+7.  Insides into `scannedLineItemsPerSecond` with Fraud Breakdown
 
-<!-- ::::: grid -->
+:::: grid
+::: g-col-6
+```{r}
 
-<!-- ::: g-col-6 -->
+# Stacked Histogram of scannedLineItemsPerSecond by fraud status
 
-<!-- ```{r} -->
+hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) +
 
-<!-- # Boxplot for scannedLineItemsPerSecond by fraud status -->
+  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
 
-<!-- boxplot_scannedLineItemsPerSecond <- ggplot(df, aes(x = factor(fraud), y = scannedLineItemsPerSecond, fill = factor(fraud))) + -->
+  labs(title = "Distribution of scannedLineItemsPerSecond with Fraud Breakdown",
 
-<!--   geom_boxplot(alpha = 0.7, outlier.color = "red") +   -->
+       x = "scannedLineItemsPerSecond",
 
-<!--   labs(title = "scannedLineItemsPerSecond by Fraud Status", -->
+       y = "Count",
 
-<!--        x = "Fraud Status", -->
+       fill = "Fraud Status") +
 
-<!--        y = "scannedLineItemsPerSecond", -->
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
 
-<!--        fill = "Fraud Status") + -->
+  theme_minimal()
 
-<!--   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +   -->
+ggplotly(hist_scannedLineItemsPerSecond)  # Interactive version
 
-<!--   theme_minimal() -->
+# Descriptive exploration for scannedLineItemsPerSecond
+summary(df$scannedLineItemsPerSecond)
 
-<!-- ggplotly(boxplot_scannedLineItemsPerSecond)  # Interactive version -->
+```
+:::
+::::
 
-<!-- ``` -->
+<br>
 
-<!-- ::: -->
+8.  Insides into `valuePerSecond` with Fraud Breakdown
 
-<!-- ::: g-col-6 -->
+::::: grid
+::: g-col-6
+```{r}
 
-<!-- ```{r} -->
+# Stacked Histogram of valuePerSecond by fraud status
 
-<!-- # Stacked Histogram of scannedLineItemsPerSecond by fraud status -->
+hist_valuePerSecond <- ggplot(df, aes(x = valuePerSecond, fill = factor(fraud))) +
 
-<!-- hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) + -->
+  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
 
-<!--   geom_histogram(bins = 10, color = "black", alpha = 0.7, position = "stack") +   -->
+  labs(title = "Distribution of valuePerSecond with Fraud Breakdown",
 
-<!--   labs(title = "Distribution of scannedLineItemsPerSecond with Fraud Breakdown", -->
+       x = "valuePerSecond",
 
-<!--        x = "scannedLineItemsPerSecond", -->
+       y = "Count",
 
-<!--        y = "Count", -->
+       fill = "Fraud Status") +
 
-<!--        fill = "Fraud Status") +   -->
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
 
-<!--   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors -->
+  theme_minimal()
 
-<!--   theme_minimal() -->
+ggplotly(hist_valuePerSecond)  # Interactive version
 
-<!-- ggplotly(hist_scannedLineItemsPerSecond)  # Interactive version -->
 
-<!-- ``` -->
+# Descriptive exploration for scannedLineItemsPerSecond
+summary(df$valuePerSecond)
 
-<!-- ::: -->
+```
+:::
 
-<!-- ::::: -->
+::: g-col-6
+```{r}
+boxplot_valuePerSecond <- ggplot(df, aes(x = factor(fraud), y = valuePerSecond, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
+  labs(title = "Boxplot of valuePerSecond by Fraud Status",
+       x = "Fraud Status",
+       y = "valuePerSecond",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
 
-<!-- ```{r} -->
+print(boxplot_valuePerSecond)
+```
+:::
+:::::
 
-<!-- # Density plot for scannedLineItemsPerSecond by fraud status -->
+<br>
 
-<!-- density_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) + -->
+9.  Insides into `lineItemVoidsPerPosition` with Fraud Breakdown
 
-<!--   geom_density(alpha = 0.5) + -->
+::::: grid
+::: g-col-6
+```{r}
+hist_lineItemVoidsPerPosition <- ggplot(df, aes(x = lineItemVoidsPerPosition, fill = factor(fraud))) +
+  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
+  labs(title = "Distribution of lineItemVoidsPerPosition with Fraud Breakdown",
+       x = "lineItemVoidsPerPosition",
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
 
-<!--   labs(title = "Density Plot of Total scannedLineItemsPerSecond by Fraud Status", -->
+print(hist_lineItemVoidsPerPosition)  # Static plot for performance
 
-<!--        x = "Total scannedLineItemsPerSecond (Seconds)", -->
+summary(df$lineItemVoidsPerPosition)
 
-<!--        y = "Density", -->
 
-<!--        fill = "Fraud Status") + -->
+```
+:::
 
-<!--   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) + -->
+::: g-col-6
+```{r}
+boxplot_lineItemVoidsPerPosition <- ggplot(df, aes(x = factor(fraud), y = lineItemVoidsPerPosition, fill = factor(fraud))) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
+  labs(title = "Boxplot of lineItemVoidsPerPosition by Fraud Status",
+       x = "Fraud Status",
+       y = "lineItemVoidsPerPosition",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
+  theme_minimal()
 
-<!--   theme_minimal() -->
+print(boxplot_lineItemVoidsPerPosition)  # Static plot for performance
+```
+:::
+:::::
 
-<!-- ggplotly(density_scannedLineItemsPerSecond)  # Interactive version -->
 
-<!-- ``` -->
+
+
+
