@@ -265,7 +265,7 @@ ggplotly(boxplot_lineItemVoids)  # Interactive version
 ```{r}
 # Stacked Histogram of lineItemVoids by fraud status
 hist_lineItemVoids <- ggplot(df, aes(x = lineItemVoids, fill = factor(fraud))) +
-  geom_histogram(bins = 10, color = "black", alpha = 0.7, position = "stack") +  
+  geom_histogram(binwidth = 1, color = "black", alpha = 0.7, position = "stack") +  
   labs(title = "Distribution of lineItemVoids with Fraud Breakdown",
        x = "lineItemVoids",
        y = "Count",
