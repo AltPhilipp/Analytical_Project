@@ -406,8 +406,7 @@ df_binned <- df %>%
     total = n(),                   # Total transactions per bin
     fraud_count = sum(fraud == 1),  # Fraud cases per bin
     fraud_rate = fraud_count / total # Fraud proportion per bin
-  ) %>%
-  drop_na()  # Remove empty bins
+  )
 
 # Convert bin labels to numerical values for plotting
 df_binned$bin_center <- as.numeric(gsub("\\(|,.*", "", as.character(df_binned$bin))) + 0.00075  
@@ -476,7 +475,6 @@ df_binned <- df %>%
     fraud_count = sum(fraud == 1),  # Fraud cases per bin
     fraud_rate = fraud_count / total # Fraud proportion per bin
   )
-  #drop_na()  # Remove empty bins
 
 # Convert bin labels to numerical values for plotting
 df_binned$bin_center <- as.numeric(gsub("\\(|,.*", "", as.character(df_binned$bin))) + 0.0025  
