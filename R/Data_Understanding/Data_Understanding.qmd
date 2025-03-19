@@ -21,10 +21,10 @@ This document presents an initial exploratory analysis of the data set related t
 ```{r setup, include=FALSE}
 #This chunk won't be rendered in final the document!
 # Load required libraries
-library(data.table)  # Efficient data reading
-library(dplyr)       # Data manipulation
-library(ggplot2)     # Visualization
-library(here)        # Using relative path names
+library(data.table)  
+library(dplyr)       
+library(ggplot2)     
+library(here)
 library(skimr)
 library(Hmisc)
 library(corrplot)
@@ -42,7 +42,6 @@ df <- fread(data_path)
 # Displaying the dimensions of the dataset
 num_rows <- dim(df)[1]
 num_cols <- dim(df)[2]
-
 ```
 
 ## Dimensions of the Dataset
@@ -50,7 +49,6 @@ num_cols <- dim(df)[2]
 ```{r}
 # Dimensions of the dataset
 cat("The dataset contains", num_rows, "rows and", num_cols, "columns.\n")
-
 ```
 
 ## Summary of the whole Dataset
@@ -65,9 +63,6 @@ skim(df)
 #cat(paste(names(df), sapply(df, class)), sep = "\n")
 df_data_types <- data.frame(Attribute = names(df), Data_Type = sapply(df, class), row.names = NULL)
 print(df_data_types)
-
-
-
 ```
 
 ## Checking for missing values and duplicates
@@ -97,22 +92,35 @@ corrplot(cor_matrix, method = "color", col = COL1("YlOrRd"),
 
 ## In-Depth Exploration of Correlated Features
 
+### Optimal Bin Width Function
+```{r}
+# Function to determine optimal bin width
+optimal_binwidth <- function(x) {
+  n <- length(x)
+  iqr_value <- IQR(x, na.rm = TRUE)  # Compute IQR
+  bin_width <- 2 * iqr_value / (n^(1/3))  # Freedman-Diaconis rule
+  
+  # If all values are whole numbers, set binwidth = 1 for better readability
+  if (all(x == floor(x), na.rm = TRUE)) {
+    return(1)  # Use whole number binning
+  } else {
+    return(bin_width)  # Use Freedman-Diaconis for continuous data
+  }
+}
+```
+
 ### Features "scannedLineItemsPerSecond" and "valuePerSecond"
 
 ```{r}
-
 vs_heat <- ggplot(df, aes(x = valuePerSecond, y = scannedLineItemsPerSecond),
-                     color = factor(fraud)) +
-  geom_bin_2d()
-
+            color = factor(fraud)) +
+            geom_bin_2d()
 ggplotly(vs_heat)
-
 ```
 
 ### Features "lineItemsVoidPerPosition" and "lineItemVoids"
 
 ```{r}
-
 # Create the bar chart with count labels
 ll_heat <- ggplot(df, aes(x = lineItemVoidsPerPosition, y = lineItemVoids)) +
   geom_bin_2d()
@@ -125,20 +133,18 @@ ggplotly(ll_heat)
 ## Distribution of the target variable `fraud`
 
 ```{r}
-
 # Create the bar chart with fraud breakdown
-t_hist <- ggplot(df, aes(x = factor(fraud), fill = factor(fraud))) +  
-  geom_bar(position = "stack", alpha = 0.7) +  
+f_bar <- ggplot(df, aes(x = factor(fraud), fill = factor(fraud))) +  
+  geom_bar(position = "stack", color = "black", alpha = 0.7) +  
   geom_text(stat = "count", aes(label = after_stat(count)), position = position_stack(vjust = 0.5), size = 5) +  
-  labs(title = "Distribution of Fraud Variable",
+  labs(title = "Distribution of \"fraud\"",
        x = "Fraud",
        y = "Count",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors for fraud categories
   theme_minimal()
 
-# Interactive version
-ggplotly(t_hist)
+ggplotly(f_bar)
 
 ```
 
@@ -147,20 +153,17 @@ ggplotly(t_hist)
 ## Breakdown of fraudulent transaction per `trustLevel`
 
 ```{r}
-#| label: Fraud_Trust_Distribtion
 # Create the stacked bar chart
-t_hist <- ggplot(df, aes(x = factor(trustLevel), fill = factor(fraud))) +  
-  geom_bar(position = "stack", alpha = 0.7) +  
-  labs(title = "Trust Level Distribution with Fraud Breakdown",
+t_bar <- ggplot(df, aes(x = factor(trustLevel), fill = factor(fraud))) +  
+  geom_bar(position = "stack", color = "black", alpha = 0.7) +  
+  labs(title = "Distribution of \"trustLevel\"",
        x = "Trust Level",
        y = "Count",
        fill = "Fraud Status") +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) + # Custom colors
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
   theme_minimal()
 
-# Interactive version
-ggplotly(t_hist)
-
+ggplotly(t_bar)
 ```
 
 <br>
@@ -173,14 +176,14 @@ ggplotly(t_hist)
 # Boxplot for totalScanTimeInSeconds by fraud status
 boxplot_scan_time <- ggplot(df, aes(x = factor(fraud), y = totalScanTimeInSeconds, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.color = "red") +  
-  labs(title = "Total Scan Time by Fraud Status",
+  labs(title = "Boxplot \"totalScanTimeInSeconds\"",
        x = "Fraud Status",
        y = "Total Scan Time (Seconds)",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-ggplotly(boxplot_scan_time)  # Interactive version
+ggplotly(boxplot_scan_time)
 ```
 :::
 
@@ -188,8 +191,8 @@ ggplotly(boxplot_scan_time)  # Interactive version
 ```{r}
 # Create the histogram with fraud breakdown
 hist_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
-  geom_histogram(position = "stack", color = "black", bins = 30, alpha = 0.7) +  
-  labs(title = "Histogram of Total Scan Time by Fraud Status",
+  geom_histogram(position = "stack", color = "black", alpha = 0.7) +  # Default bins = 30
+  labs(title = "Distribution of \"totalScanTimeInSeconds\"",
        x = "Total Scan Time (Seconds)",
        y = "Count",
        fill = "Fraud Status") +
@@ -212,14 +215,14 @@ ggplotly(hist_scan_time)
 # Boxplot for grandTotal by fraud status
 boxplot_grand_total <- ggplot(df, aes(x = factor(fraud), y = grandTotal, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.color = "red") +  
-  labs(title = "Grand Total by Fraud Status",
+  labs(title = "Boxplot \"grandTotal\"",
        x = "Fraud Status",
        y = "Transaction Amount (Grand Total)",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-ggplotly(boxplot_grand_total)  # Interactive version
+ggplotly(boxplot_grand_total)
 ```
 :::
 
@@ -227,15 +230,15 @@ ggplotly(boxplot_grand_total)  # Interactive version
 ```{r}
 # Stacked Histogram of grandTotal by fraud status
 hist_grand_total <- ggplot(df, aes(x = grandTotal, fill = factor(fraud))) +
-  geom_histogram(bins = 30, color = "black", alpha = 0.7, position = "stack") +  
-  labs(title = "Distribution of Grand Total with Fraud Breakdown",
+  geom_histogram(color = "black", alpha = 0.7, position = "stack") +  # Default bins = 30
+  labs(title = "Distribution of \"grandTotal\"",
        x = "Transaction Amount (Grand Total)",
        y = "Count",
        fill = "Fraud Status") +  
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
   theme_minimal()
 
-ggplotly(hist_grand_total)  # Interactive version
+ggplotly(hist_grand_total)
 ```
 :::
 :::::
@@ -250,14 +253,14 @@ ggplotly(hist_grand_total)  # Interactive version
 # Boxplot for lineItemVoids by fraud status
 boxplot_lineItemVoids <- ggplot(df, aes(x = factor(fraud), y = lineItemVoids, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.color = "red") +  
-  labs(title = "lineItemVoids by Fraud Status",
+  labs(title = "Boxplot \"lineItemVoids\"",
        x = "Fraud Status",
        y = "lineItemVoids",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-ggplotly(boxplot_lineItemVoids)  # Interactive version
+ggplotly(boxplot_lineItemVoids)
 ```
 :::
 
@@ -265,16 +268,15 @@ ggplotly(boxplot_lineItemVoids)  # Interactive version
 ```{r}
 # Stacked Histogram of lineItemVoids by fraud status
 hist_lineItemVoids <- ggplot(df, aes(x = lineItemVoids, fill = factor(fraud))) +
-  geom_histogram(binwidth = 1, color = "black", alpha = 0.7, position = "stack") +  
-  labs(title = "Distribution of lineItemVoids with Fraud Breakdown",
+  geom_histogram(binwidth = optimal_binwidth(df$lineItemVoids), color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of \"lineItemVoids\"",
        x = "lineItemVoids",
        y = "Count",
        fill = "Fraud Status") +  
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
   theme_minimal()
 
-ggplotly(hist_lineItemVoids)  # Interactive version
-
+ggplotly(hist_lineItemVoids)
 ```
 :::
 :::::
@@ -289,14 +291,14 @@ ggplotly(hist_lineItemVoids)  # Interactive version
 # Boxplot for scansWithoutRegistration by fraud status
 boxplot_scansWithoutRegistration <- ggplot(df, aes(x = factor(fraud), y = scansWithoutRegistration, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.color = "red") +  
-  labs(title = "scansWithoutRegistration by Fraud Status",
+  labs(title = "Boxplot \"scansWithoutRegistration\"",
        x = "Fraud Status",
        y = "scansWithoutRegistration",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-ggplotly(boxplot_scansWithoutRegistration)  # Interactive version
+ggplotly(boxplot_scansWithoutRegistration)
 ```
 :::
 
@@ -304,16 +306,15 @@ ggplotly(boxplot_scansWithoutRegistration)  # Interactive version
 ```{r}
 # Stacked Histogram of scansWithoutRegistration by Fraud Status
 hist_scansWithoutRegistration <- ggplot(df, aes(x = scansWithoutRegistration, fill = factor(fraud))) +
-  geom_histogram(bins = 11, color = "black", alpha = 0.7, position = "stack") +  
-  labs(title = "Distribution of scansWithoutRegistration with Fraud Breakdown",
+  geom_histogram(binwidth = optimal_binwidth(df$scansWithoutRegistration), color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of \"scansWithoutRegistration\"",
        x = "scansWithoutRegistration",
        y = "Count",
        fill = "Fraud Status") +  
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
   theme_minimal()
 
-ggplotly(hist_scansWithoutRegistration)  # Interactive version
-
+ggplotly(hist_scansWithoutRegistration)
 ```
 :::
 :::::
@@ -328,14 +329,14 @@ ggplotly(hist_scansWithoutRegistration)  # Interactive version
 # Boxplot for quantityModifications by fraud status
 boxplot_quantityModifications <- ggplot(df, aes(x = factor(fraud), y = quantityModifications, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.color = "red") +  
-  labs(title = "quantityModifications by Fraud Status",
+  labs(title = "Boxplot \"quantityModifications\"",
        x = "Fraud Status",
        y = "quantityModifications",
        fill = "Fraud Status") +
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-ggplotly(boxplot_quantityModifications)  # Interactive version
+ggplotly(boxplot_quantityModifications)
 ```
 :::
 
@@ -343,16 +344,15 @@ ggplotly(boxplot_quantityModifications)  # Interactive version
 ```{r}
 # Stacked Histogram of quantityModifications by Fraud Status
 hist_quantityModifications <- ggplot(df, aes(x = quantityModifications, fill = factor(fraud))) +
-  geom_histogram(bins = 6, color = "black", alpha = 0.7, position = "stack") +  
-  labs(title = "Distribution of quantityModifications with Fraud Breakdown",
+  geom_histogram(binwidth = optimal_binwidth(df$quantityModifications), color = "black", alpha = 0.7, position = "stack") +  
+  labs(title = "Distribution of \"quantityModifications\"",
        x = "quantityModifications",
        y = "Count",
        fill = "Fraud Status") +  
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
   theme_minimal()
 
-ggplotly(hist_quantityModifications)  # Interactive version
-
+ggplotly(hist_quantityModifications)
 ```
 :::
 :::::
@@ -364,38 +364,9 @@ ggplotly(hist_quantityModifications)  # Interactive version
 :::: grid
 ::: g-col-6
 ```{r}
-
-# Stacked Histogram of scannedLineItemsPerSecond by fraud status
-
-hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) +
-
-  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
-
-  labs(title = "Distribution of scannedLineItemsPerSecond with Fraud Breakdown",
-
-       x = "scannedLineItemsPerSecond",
-
-       y = "Count",
-
-       fill = "Fraud Status") +
-
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
-
-  theme_minimal()
-
-ggplotly(hist_scannedLineItemsPerSecond)  # Interactive version
-
-# Descriptive exploration for scannedLineItemsPerSecond
-summary(df$scannedLineItemsPerSecond)
-
-```
-:::
-
-::: g-col-6
-```{r}
 boxplot_scannedLineItemsPerSecond <- ggplot(df, aes(x = factor(fraud), y = scannedLineItemsPerSecond, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
-  labs(title = "Boxplot of scannedLineItemsPerSecond by Fraud Status",
+  labs(title = "Boxplot \"scannedLineItemsPerSecond\"",
        x = "Fraud Status",
        y = "scannedLineItemsPerSecond",
        fill = "Fraud Status") +
@@ -403,9 +374,53 @@ boxplot_scannedLineItemsPerSecond <- ggplot(df, aes(x = factor(fraud), y = scann
   theme_minimal()
 
 print(boxplot_scannedLineItemsPerSecond)
+```
+:::
+::: g-col-6
+```{r}
+# Compute the 95th percentile to exclude extreme outliers
+upper_limit <- quantile(df$scannedLineItemsPerSecond, 0.95)
+cat("Upper Limit for Plotting:", upper_limit, "\n")
 
+# Stacked Histogram of scannedLineItemsPerSecond by fraud status
+hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) +
+  geom_histogram(binwidth = 0.0015, alpha = 0.7, position = "stack") +
+  labs(title = "Distribution of \"scannedLineItemsPerSecond\"",
+       x = "scannedLineItemsPerSecond",
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal() +
+  xlim(0, upper_limit)
+ggplotly(hist_scannedLineItemsPerSecond)  # Interactive version
 
+# Descriptive exploration for scannedLineItemsPerSecond
+summary(df$scannedLineItemsPerSecond)
 
+# Compute Fraud Rate per Bin
+df_binned <- df %>%
+  filter(scannedLineItemsPerSecond <= upper_limit) %>%  # Remove top 5% outliers
+  mutate(bin = cut(scannedLineItemsPerSecond, breaks = seq(0, upper_limit, by = 0.0015), include.lowest = TRUE)) %>%
+  group_by(bin) %>%
+  summarise(
+    total = n(),                   # Total transactions per bin
+    fraud_count = sum(fraud == 1),  # Fraud cases per bin
+    fraud_rate = fraud_count / total # Fraud proportion per bin
+  ) %>%
+  drop_na()  # Remove empty bins
+
+# Convert bin labels to numerical values for plotting
+df_binned$bin_center <- as.numeric(gsub("\\(|,.*", "", as.character(df_binned$bin))) + 0.00075  
+
+# Fraud Rate Plot (Normalized Fraud Proportion)
+fraud_rate_plot <- ggplot(df_binned, aes(x = bin_center, y = fraud_rate)) +
+  geom_bar(stat = "identity", fill = "red", alpha = 0.7) +
+  labs(title = "Fraud Rate Across \"scannedLineItemsPerSecond\"",
+       x = "scannedLineItemsPerSecond (Binned)",
+       y = "Fraud Proportion") +
+  theme_minimal()
+
+ggplotly(fraud_rate_plot)  # Interactive version
 ```
 :::
 ::::
@@ -417,39 +432,9 @@ print(boxplot_scannedLineItemsPerSecond)
 ::::: grid
 ::: g-col-6
 ```{r}
-
-# Stacked Histogram of valuePerSecond by fraud status
-
-hist_valuePerSecond <- ggplot(df, aes(x = valuePerSecond, fill = factor(fraud))) +
-
-  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
-
-  labs(title = "Distribution of valuePerSecond with Fraud Breakdown",
-
-       x = "valuePerSecond",
-
-       y = "Count",
-
-       fill = "Fraud Status") +
-
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
-
-  theme_minimal()
-
-ggplotly(hist_valuePerSecond)  # Interactive version
-
-
-# Descriptive exploration for scannedLineItemsPerSecond
-summary(df$valuePerSecond)
-
-```
-:::
-
-::: g-col-6
-```{r}
 boxplot_valuePerSecond <- ggplot(df, aes(x = factor(fraud), y = valuePerSecond, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
-  labs(title = "Boxplot of valuePerSecond by Fraud Status",
+  labs(title = "Boxplot \"valuePerSecond\"",
        x = "Fraud Status",
        y = "valuePerSecond",
        fill = "Fraud Status") +
@@ -457,6 +442,55 @@ boxplot_valuePerSecond <- ggplot(df, aes(x = factor(fraud), y = valuePerSecond, 
   theme_minimal()
 
 print(boxplot_valuePerSecond)
+```
+:::
+::: g-col-6
+```{r}
+# Compute the 95th percentile to exclude extreme outliers
+upper_limit <- quantile(df$valuePerSecond, 0.95)
+cat("Upper Limit for Plotting:", upper_limit, "\n")
+
+# Stacked Histogram of valuePerSecond by fraud status
+hist_valuePerSecond <- ggplot(df, aes(x = valuePerSecond, fill = factor(fraud))) +
+  geom_histogram(binwidth = 0.005, alpha = 0.7, position = "stack") +
+  labs(title = "Distribution of \"valuePerSecond\"",
+       x = "valuePerSecond",
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal() +
+  xlim(0, upper_limit) # Limit x-axis values to most common range
+
+ggplotly(hist_valuePerSecond)
+
+# Descriptive exploration for valuePerSecond
+summary(df$valuePerSecond)
+
+# Compute Fraud Rate per Bin
+df_binned <- df %>%
+  filter(valuePerSecond <= upper_limit) %>%  # Remove top 5% outliers
+  mutate(bin = cut(valuePerSecond, breaks = seq(0, upper_limit, by = 0.005), include.lowest = TRUE)) %>%
+  group_by(bin) %>%
+  summarise(
+    total = n(),                   # Total transactions per bin
+    fraud_count = sum(fraud == 1),  # Fraud cases per bin
+    fraud_rate = fraud_count / total # Fraud proportion per bin
+  )
+  #drop_na()  # Remove empty bins
+
+# Convert bin labels to numerical values for plotting
+df_binned$bin_center <- as.numeric(gsub("\\(|,.*", "", as.character(df_binned$bin))) + 0.0025  
+
+# Fraud Rate Plot (Normalized Fraud Proportion)
+fraud_rate_plot <- ggplot(df_binned, aes(x = bin_center, y = fraud_rate)) +
+  geom_bar(stat = "identity", fill = "red", alpha = 0.7) +
+  labs(title = "Fraud Rate Across \"valuePerSecond\"",
+       x = "valuePerSecond (Binned)",
+       y = "Fraud Proportion") +
+  theme_minimal()
+
+ggplotly(fraud_rate_plot)  # Interactive version
+
 ```
 :::
 :::::
@@ -468,28 +502,9 @@ print(boxplot_valuePerSecond)
 ::::: grid
 ::: g-col-6
 ```{r}
-hist_lineItemVoidsPerPosition <- ggplot(df, aes(x = lineItemVoidsPerPosition, fill = factor(fraud))) +
-  geom_histogram(bins = 100, color = "black", alpha = 0.7, position = "stack") +
-  labs(title = "Distribution of lineItemVoidsPerPosition with Fraud Breakdown",
-       x = "lineItemVoidsPerPosition",
-       y = "Count",
-       fill = "Fraud Status") +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
-  theme_minimal()
-
-print(hist_lineItemVoidsPerPosition)  # Static plot for performance
-
-summary(df$lineItemVoidsPerPosition)
-
-
-```
-:::
-
-::: g-col-6
-```{r}
 boxplot_lineItemVoidsPerPosition <- ggplot(df, aes(x = factor(fraud), y = lineItemVoidsPerPosition, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
-  labs(title = "Boxplot of lineItemVoidsPerPosition by Fraud Status",
+  labs(title = "Boxplot \"lineItemVoidsPerPosition\"",
        x = "Fraud Status",
        y = "lineItemVoidsPerPosition",
        fill = "Fraud Status") +
@@ -497,6 +512,31 @@ boxplot_lineItemVoidsPerPosition <- ggplot(df, aes(x = factor(fraud), y = lineIt
   theme_minimal()
 
 print(boxplot_lineItemVoidsPerPosition)  # Static plot for performance
+```
+:::
+::: g-col-6
+```{r}
+# Compute the 95th percentile to exclude extreme outliers
+upper_limit <- quantile(df$lineItemVoidsPerPosition, 0.95)
+cat("Upper Limit for Plotting:", upper_limit, "\n")
+
+# Stacked Histogram of valuePerSecond by fraud status
+hist_lineItemVoidsPerPosition <- ggplot(df, aes(x = lineItemVoidsPerPosition, fill = factor(fraud))) +
+  geom_histogram(binwidth = 0.025, alpha = 0.7, position = "stack") +
+  labs(title = "Distribution of \"lineItemVoidsPerPosition\"",
+       x = "lineItemVoidsPerPosition",
+       y = "Count",
+       fill = "Fraud Status") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  # Custom colors
+  theme_minimal() +
+  xlim(0, upper_limit) + # Limit x-axis values to most common range
+  ylim(0, 1500) # Limit y-axis to 1500 for better readability
+
+ggplotly(hist_lineItemVoidsPerPosition)
+
+# Descriptive exploration for lineItemVoidsPerPosition
+summary(df$valuePerSecond)
+
 ```
 :::
 :::::
