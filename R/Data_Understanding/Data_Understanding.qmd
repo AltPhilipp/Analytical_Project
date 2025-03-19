@@ -60,7 +60,6 @@ skim(df)
 ## Underlying Data Types
 
 ```{r}
-#cat(paste(names(df), sapply(df, class)), sep = "\n")
 df_data_types <- data.frame(Attribute = names(df), Data_Type = sapply(df, class), row.names = NULL)
 print(df_data_types)
 ```
@@ -111,19 +110,22 @@ optimal_binwidth <- function(x) {
 
 ### Features "scannedLineItemsPerSecond" and "valuePerSecond"
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 vs_heat <- ggplot(df, aes(x = valuePerSecond, y = scannedLineItemsPerSecond),
             color = factor(fraud)) +
-            geom_bin_2d()
+            geom_bin_2d() +
+            geom_smooth(color = "red")
+
 ggplotly(vs_heat)
 ```
 
 ### Features "lineItemsVoidPerPosition" and "lineItemVoids"
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Create the bar chart with count labels
 ll_heat <- ggplot(df, aes(x = lineItemVoidsPerPosition, y = lineItemVoids)) +
-  geom_bin_2d()
+            geom_bin_2d() +
+            geom_smooth(color = "red")
 
 ggplotly(ll_heat)
 ```
@@ -188,7 +190,7 @@ ggplotly(boxplot_scan_time)
 :::
 
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Create the histogram with fraud breakdown
 hist_scan_time <- ggplot(df, aes(x = totalScanTimeInSeconds, fill = factor(fraud))) +
   geom_histogram(position = "stack", color = "black", alpha = 0.7) +  # Default bins = 30
@@ -227,7 +229,7 @@ ggplotly(boxplot_grand_total)
 :::
 
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Stacked Histogram of grandTotal by fraud status
 hist_grand_total <- ggplot(df, aes(x = grandTotal, fill = factor(fraud))) +
   geom_histogram(color = "black", alpha = 0.7, position = "stack") +  # Default bins = 30
@@ -341,7 +343,7 @@ ggplotly(boxplot_quantityModifications)
 :::
 
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Stacked Histogram of quantityModifications by Fraud Status
 hist_quantityModifications <- ggplot(df, aes(x = quantityModifications, fill = factor(fraud))) +
   geom_histogram(binwidth = optimal_binwidth(df$quantityModifications), color = "black", alpha = 0.7, position = "stack") +  
@@ -363,7 +365,7 @@ ggplotly(hist_quantityModifications)
 
 :::: grid
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 boxplot_scannedLineItemsPerSecond <- ggplot(df, aes(x = factor(fraud), y = scannedLineItemsPerSecond, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
   labs(title = "Boxplot \"scannedLineItemsPerSecond\"",
@@ -373,14 +375,14 @@ boxplot_scannedLineItemsPerSecond <- ggplot(df, aes(x = factor(fraud), y = scann
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-print(boxplot_scannedLineItemsPerSecond)
+print(boxplot_scannedLineItemsPerSecond) # Changed to print() for performance reasons
 ```
 :::
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Compute the 95th percentile to exclude extreme outliers
 upper_limit <- quantile(df$scannedLineItemsPerSecond, 0.95)
-cat("Upper Limit for Plotting:", upper_limit, "\n")
+# cat("Upper Limit for Plotting:", upper_limit, "\n")
 
 # Stacked Histogram of scannedLineItemsPerSecond by fraud status
 hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, fill = factor(fraud))) +
@@ -394,8 +396,8 @@ hist_scannedLineItemsPerSecond <- ggplot(df, aes(x = scannedLineItemsPerSecond, 
   xlim(0, upper_limit)
 ggplotly(hist_scannedLineItemsPerSecond)  # Interactive version
 
-# Descriptive exploration for scannedLineItemsPerSecond
-summary(df$scannedLineItemsPerSecond)
+# # Descriptive exploration for scannedLineItemsPerSecond
+# summary(df$scannedLineItemsPerSecond)
 
 # Compute Fraud Rate per Bin
 df_binned <- df %>%
@@ -430,7 +432,7 @@ ggplotly(fraud_rate_plot)  # Interactive version
 
 ::::: grid
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 boxplot_valuePerSecond <- ggplot(df, aes(x = factor(fraud), y = valuePerSecond, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
   labs(title = "Boxplot \"valuePerSecond\"",
@@ -440,14 +442,14 @@ boxplot_valuePerSecond <- ggplot(df, aes(x = factor(fraud), y = valuePerSecond, 
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-print(boxplot_valuePerSecond)
+print(boxplot_valuePerSecond) # Changed to print() for performance reasons
 ```
 :::
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Compute the 95th percentile to exclude extreme outliers
 upper_limit <- quantile(df$valuePerSecond, 0.95)
-cat("Upper Limit for Plotting:", upper_limit, "\n")
+# cat("Upper Limit for Plotting:", upper_limit, "\n")
 
 # Stacked Histogram of valuePerSecond by fraud status
 hist_valuePerSecond <- ggplot(df, aes(x = valuePerSecond, fill = factor(fraud))) +
@@ -462,8 +464,8 @@ hist_valuePerSecond <- ggplot(df, aes(x = valuePerSecond, fill = factor(fraud)))
 
 ggplotly(hist_valuePerSecond)
 
-# Descriptive exploration for valuePerSecond
-summary(df$valuePerSecond)
+# # Descriptive exploration for valuePerSecond
+# summary(df$valuePerSecond)
 
 # Compute Fraud Rate per Bin
 df_binned <- df %>%
@@ -499,7 +501,7 @@ ggplotly(fraud_rate_plot)  # Interactive version
 
 ::::: grid
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 boxplot_lineItemVoidsPerPosition <- ggplot(df, aes(x = factor(fraud), y = lineItemVoidsPerPosition, fill = factor(fraud))) +
   geom_boxplot(alpha = 0.7, outlier.shape = 16, outlier.size = 2) +  
   labs(title = "Boxplot \"lineItemVoidsPerPosition\"",
@@ -509,14 +511,14 @@ boxplot_lineItemVoidsPerPosition <- ggplot(df, aes(x = factor(fraud), y = lineIt
   scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +  
   theme_minimal()
 
-print(boxplot_lineItemVoidsPerPosition)  # Static plot for performance
+print(boxplot_lineItemVoidsPerPosition) # Changed to print() for performance reasons
 ```
 :::
 ::: g-col-6
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # Compute the 95th percentile to exclude extreme outliers
 upper_limit <- quantile(df$lineItemVoidsPerPosition, 0.95)
-cat("Upper Limit for Plotting:", upper_limit, "\n")
+# cat("Upper Limit for Plotting:", upper_limit, "\n")
 
 # Stacked Histogram of valuePerSecond by fraud status
 hist_lineItemVoidsPerPosition <- ggplot(df, aes(x = lineItemVoidsPerPosition, fill = factor(fraud))) +
@@ -532,8 +534,8 @@ hist_lineItemVoidsPerPosition <- ggplot(df, aes(x = lineItemVoidsPerPosition, fi
 
 ggplotly(hist_lineItemVoidsPerPosition)
 
-# Descriptive exploration for lineItemVoidsPerPosition
-summary(df$valuePerSecond)
+# # Descriptive exploration for lineItemVoidsPerPosition
+# summary(df$valuePerSecond)
 
 ```
 :::
